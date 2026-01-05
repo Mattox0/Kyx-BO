@@ -11,6 +11,10 @@ import { Prefer } from './prefer/entities/prefer.entity.js';
 import { PreferMode } from './prefer/entities/prefer-mode.entity.js';
 import { NeverHave } from './never-have/entities/never-have.entity.js';
 import { NeverHaveMode } from './never-have/entities/never-have-mode.entity.js';
+import {
+  adminJsBranding,
+  adminJsResources,
+} from './admin/admin.config.js';
 
 const DEFAULT_ADMIN = {
   email: 'mattox@gmail.com',
@@ -65,34 +69,9 @@ const authenticate = async (email: string, password: string) => {
         useFactory: (dataSource: DataSource) => ({
           adminJsOptions: {
             rootPath: '/admin',
-            resources: [
-              {
-                resource: TruthDare,
-                options: {
-                  navigation: {
-                    name: 'Truth or Dare',
-                    icon: 'Game',
-                  },
-                  properties: {
-                    id: {
-                      isVisible: { list: true, filter: true, show: true, edit: false },
-                    },
-                    createdAt: {
-                      isVisible: { list: true, filter: true, show: true, edit: false },
-                    },
-                    updatedAt: {
-                      isVisible: { list: true, filter: true, show: true, edit: false },
-                    },
-                  },
-                },
-              },
-            ],
+            resources: adminJsResources,
             databases: [dataSource],
-            branding: {
-              companyName: 'Truth or Dare Admin',
-              logo: false,
-              softwareBrothers: false,
-            },
+            branding: adminJsBranding,
           },
           /* auth: {
             authenticate,
