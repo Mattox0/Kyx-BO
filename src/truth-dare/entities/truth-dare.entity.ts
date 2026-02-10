@@ -3,14 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Gender } from '../../../types/enums/Gender.js';
 import { ChallengeType } from '../../../types/enums/TruthDareChallengeType.js';
-import { TruthDareMode } from './truth-dare-mode.entity.js';
+import { Mode } from '../../mode/entities/mode.entity.js';
 
 @Entity("truth-dare")
 export class TruthDare extends BaseEntity {
@@ -42,7 +42,6 @@ export class TruthDare extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedDate: Date;
 
-  @ManyToOne(() => TruthDareMode, (mode) => mode.truthDares, { nullable: false })
-  @JoinColumn({ name: 'modeId' })
-  mode: TruthDareMode;
+  @OneToMany(() => Mode, mode => mode.truthDare)
+  modes: Relation<Mode[]>;
 }

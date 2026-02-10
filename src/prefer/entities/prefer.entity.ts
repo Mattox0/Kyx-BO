@@ -3,12 +3,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PreferMode } from './prefer-mode.entity.js';
+import type { Relation } from 'typeorm';
+import { Mode } from '../../mode/entities/mode.entity.js';
 
 @Entity("prefer")
 export class Prefer extends BaseEntity {
@@ -27,7 +27,6 @@ export class Prefer extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedDate: Date;
 
-  @ManyToOne(() => PreferMode, (mode) => mode.prefers, { nullable: false })
-  @JoinColumn({ name: 'modeId' })
-  mode: PreferMode;
+  @OneToMany(() => Mode, mode => mode.prefer)
+  modes: Relation<Mode[]>;
 }

@@ -3,12 +3,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { NeverHaveMode } from './never-have-mode.entity.js';
+import type { Relation } from 'typeorm';
+import { Mode } from '../../mode/entities/mode.entity.js';
 
 @Entity("never-have")
 export class NeverHave extends BaseEntity {
@@ -24,7 +24,6 @@ export class NeverHave extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedDate: Date;
 
-  @ManyToOne(() => NeverHaveMode, (mode) => mode.neverHaves, { nullable: false })
-  @JoinColumn({ name: 'modeId' })
-  mode: NeverHaveMode;
+  @OneToMany(() => Mode, mode => mode.neverHave)
+  modes: Relation<Mode[]>;
 }
