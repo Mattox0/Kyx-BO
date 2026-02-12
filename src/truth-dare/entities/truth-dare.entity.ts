@@ -3,7 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -26,7 +26,7 @@ export class TruthDare extends BaseEntity {
     nullable: false,
     default: Gender.ALL,
   })
-  genre: Gender;
+  gender: Gender;
 
   @Column({
     type: 'enum',
@@ -42,6 +42,6 @@ export class TruthDare extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedDate: Date;
 
-  @OneToMany(() => Mode, mode => mode.truthDare)
-  modes: Relation<Mode[]>;
+  @ManyToOne(() => Mode, { onDelete: 'CASCADE' })
+  mode: Relation<Mode>;
 }

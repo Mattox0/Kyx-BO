@@ -3,7 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -27,6 +27,6 @@ export class Prefer extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedDate: Date;
 
-  @OneToMany(() => Mode, mode => mode.prefer)
-  modes: Relation<Mode[]>;
+  @ManyToOne(() => Mode, { onDelete: 'CASCADE' })
+  mode: Relation<Mode>;
 }

@@ -3,13 +3,10 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import type { Relation } from 'typeorm';
-import { NeverHave } from '../../never-have/entities/never-have.entity.js';
-import { Prefer } from '../../prefer/entities/prefer.entity.js';
-import { TruthDare } from '../../truth-dare/entities/truth-dare.entity.js';
+import { GameType } from '../../../types/enums/GameType.js';
 
 @Entity("mode")
 export class Mode extends BaseEntity {
@@ -28,12 +25,9 @@ export class Mode extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   icon: string;
 
-  @ManyToOne(() => NeverHave, (neverHave) => neverHave.modes, { onDelete: 'CASCADE' })
-  neverHave: Relation<NeverHave>;
-
-  @ManyToOne(() => Prefer, (prefer) => prefer.modes, { onDelete: 'CASCADE' })
-  prefer: Relation<Prefer>;
-
-  @ManyToOne(() => TruthDare, (truthDare) => truthDare.modes, { onDelete: 'CASCADE' })
-  truthDare: Relation<TruthDare>;
+  @Column({
+    type: 'enum',
+    enum: GameType,
+  })
+  gameType: GameType;
 }

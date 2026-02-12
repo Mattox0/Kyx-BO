@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -24,6 +25,6 @@ export class NeverHave extends BaseEntity {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedDate: Date;
 
-  @OneToMany(() => Mode, mode => mode.neverHave)
-  modes: Relation<Mode[]>;
+  @ManyToOne(() => Mode, { onDelete: 'CASCADE' })
+  mode: Relation<Mode>;
 }

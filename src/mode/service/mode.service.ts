@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Mode } from '../entities/mode.entity.js';
 import { CreateModeDto } from '../dto/create-mode.dto.js';
 import { UpdateModeDto } from '../dto/update-mode.dto.js';
+import { GameType } from '../../../types/enums/GameType.js';
 
 @Injectable()
 export class ModeService {
@@ -41,20 +42,22 @@ export class ModeService {
   }
 
   async findByGame(gameName: string): Promise<Mode[]> {
-    const columnMap: Record<string, string> = {
-      'never-have': 'mode.neverHaveId',
-      'prefer': 'mode.preferId',
-      'truth-dare': 'mode.truthDareId',
+    const gameTypeMap: Record<string, GameType> = {
+      'never-have': GameType.NEVER_HAVE,
+      'prefer': GameType.PREFER,
+      'truth-dare': GameType.TRUTH_DARE,
     };
 
-    const column = columnMap[gameName];
-    if (!column) return [];
+    const gameType = gameTypeMap[gameName];
+    if (!gameType) {
+      throw new NotFoundException(`Game type "${gameName}" not found`);
+    }
 
     return this.dataSource
       .createQueryBuilder()
       .select('mode')
       .from(Mode, 'mode')
-      .where(`${column} IS NOT NULL`)
+      .where('mode.gameType = :gameType', { gameType })
       .getMany();
   }
 

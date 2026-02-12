@@ -1,4 +1,9 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
+import { GameType } from '../../../types/enums/GameType.js';
 
 export class CreateModeDto {
   @IsString()
@@ -8,4 +13,8 @@ export class CreateModeDto {
   @IsString()
   @IsNotEmpty()
   description: string;
+
+  @IsEnum(GameType)
+  @IsNotEmpty()
+  gameType: GameType;
 }
