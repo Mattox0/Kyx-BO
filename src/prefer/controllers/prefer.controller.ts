@@ -9,6 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { CreatePreferDto } from '../dto/create-prefer.dto.js';
+import { ImportPreferDto } from '../dto/import-prefer.dto.js';
 import { Prefer } from '../entities/prefer.entity.js';
 import { PreferService } from '../service/prefer.service.js';
 import { UpdatePreferDto } from '../dto/update-prefer.dto.js';
@@ -27,8 +28,9 @@ export class PreferController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('modeId') modeId?: string,
+    @Query('search') search?: string,
   ) {
-    return this.preferService.findAll(+(page ?? 1), +(limit ?? 50), modeId);
+    return this.preferService.findAll(+(page ?? 1), +(limit ?? 50), modeId, search);
   }
 
   @Put(":id")
@@ -42,5 +44,15 @@ export class PreferController {
   @Delete(":id")
   async deletePrefer(@Param('id') id: string): Promise<void> {
     return this.preferService.remove(id);
+  }
+
+  @Get("export")
+  async exportPrefer(@Query('modeId') modeId?: string): Promise<Prefer[]> {
+    return this.preferService.exportAll(modeId);
+  }
+
+  @Post("import")
+  async importPrefer(@Body() dto: ImportPreferDto) {
+    return this.preferService.bulkCreate(dto.questions);
   }
 }

@@ -3,13 +3,14 @@ import { DataSource } from 'typeorm';
 import { Mode } from '../../mode/entities/mode.entity.js';
 import { TruthDare } from '../entities/truth-dare.entity.js';
 import { CreateTruthDareDto } from '../dto/create-truth-dare.dto.js';
+import { ImportTruthDareItemDto } from '../dto/import-truth-dare.dto.js';
 import { UpdateTruthDareDto } from '../dto/update-truth-dare.dto.js';
 
 @Injectable()
 export class TruthDareService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findAll(page: number, limit: number, modeId?: string) {
+  async findAll(page: number, limit: number, modeId?: string, search?: string) {
     const qb = this.dataSource
       .createQueryBuilder()
       .select('truthDare')
@@ -18,6 +19,10 @@ export class TruthDareService {
 
     if (modeId) {
       qb.where('mode.id = :modeId', { modeId });
+    }
+
+    if (search) {
+      qb.andWhere('truthDare.text ILIKE :search', { search: `%${search}%` });
     }
 
     const [data, total] = await qb
@@ -116,5 +121,53 @@ export class TruthDareService {
       .from(TruthDare)
       .where('id = :id', { id })
       .execute();
+  }
+
+  async exportAll(modeId?: string): Promise<TruthDare[]> {
+    const qb = this.dataSource
+      .createQueryBuilder()
+      .select('truthDare')
+      .from(TruthDare, 'truthDare')
+      .leftJoinAndSelect('truthDare.mode', 'mode');
+
+    if (modeId) {
+      qb.where('mode.id = :modeId', { modeId });
+    }
+
+    return qb.getMany();
+  }
+
+  async bulkCreate(items: ImportTruthDareItemDto[]): Promise<{ created: number; skipped: number; errors: string[] }> {
+    let created = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      try {
+        await this.dataSource
+          .createQueryBuilder()
+          .insert()
+          .into(TruthDare)
+          .values({
+            text: item.text,
+            gender: item.gender,
+            type: item.type,
+            mode: { id: item.modeId },
+          })
+          .execute();
+        created++;
+      } catch (error) {
+        if (error.code === '23505') {
+          skipped++;
+        } else if (error.code === '23503') {
+          errors.push(`Ligne ${i + 1}: mode "${item.modeId}" introuvable`);
+        } else {
+          errors.push(`Ligne ${i + 1}: ${error.message}`);
+        }
+      }
+    }
+
+    return { created, skipped, errors };
   }
 }

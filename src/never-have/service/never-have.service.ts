@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { CreateNeverHaveDto } from '../dto/create-never-have.dto.js';
+import { ImportNeverHaveItemDto } from '../dto/import-never-have.dto.js';
 import { NeverHave } from '../entities/never-have.entity.js';
 import { UpdateNeverHaveDto } from '../dto/update-never-have.dto.js';
 import { Mode } from '../../mode/entities/mode.entity.js';
@@ -9,7 +10,7 @@ import { Mode } from '../../mode/entities/mode.entity.js';
 export class NeverHaveService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findAll(page: number, limit: number, modeId?: string) {
+  async findAll(page: number, limit: number, modeId?: string, search?: string) {
     const qb = this.dataSource
       .createQueryBuilder()
       .select('neverHave')
@@ -18,6 +19,10 @@ export class NeverHaveService {
 
     if (modeId) {
       qb.where('mode.id = :modeId', { modeId });
+    }
+
+    if (search) {
+      qb.andWhere('neverHave.question ILIKE :search', { search: `%${search}%` });
     }
 
     const [data, total] = await qb
@@ -106,5 +111,51 @@ export class NeverHaveService {
       .from(NeverHave)
       .where('id = :id', { id })
       .execute();
+  }
+
+  async exportAll(modeId?: string): Promise<NeverHave[]> {
+    const qb = this.dataSource
+      .createQueryBuilder()
+      .select('neverHave')
+      .from(NeverHave, 'neverHave')
+      .leftJoinAndSelect('neverHave.mode', 'mode');
+
+    if (modeId) {
+      qb.where('mode.id = :modeId', { modeId });
+    }
+
+    return qb.getMany();
+  }
+
+  async bulkCreate(items: ImportNeverHaveItemDto[]): Promise<{ created: number; skipped: number; errors: string[] }> {
+    let created = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      try {
+        await this.dataSource
+          .createQueryBuilder()
+          .insert()
+          .into(NeverHave)
+          .values({
+            question: item.question,
+            mode: { id: item.modeId },
+          })
+          .execute();
+        created++;
+      } catch (error) {
+        if (error.code === '23505') {
+          skipped++;
+        } else if (error.code === '23503') {
+          errors.push(`Ligne ${i + 1}: mode "${item.modeId}" introuvable`);
+        } else {
+          errors.push(`Ligne ${i + 1}: ${error.message}`);
+        }
+      }
+    }
+
+    return { created, skipped, errors };
   }
 }

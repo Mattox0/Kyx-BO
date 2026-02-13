@@ -3,13 +3,14 @@ import { DataSource } from 'typeorm';
 import { Mode } from '../../mode/entities/mode.entity.js';
 import { Prefer } from '../entities/prefer.entity.js';
 import { CreatePreferDto } from '../dto/create-prefer.dto.js';
+import { ImportPreferItemDto } from '../dto/import-prefer.dto.js';
 import { UpdatePreferDto } from '../dto/update-prefer.dto.js';
 
 @Injectable()
 export class PreferService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findAll(page: number, limit: number, modeId?: string) {
+  async findAll(page: number, limit: number, modeId?: string, search?: string) {
     const qb = this.dataSource
       .createQueryBuilder()
       .select('prefer')
@@ -18,6 +19,10 @@ export class PreferService {
 
     if (modeId) {
       qb.where('mode.id = :modeId', { modeId });
+    }
+
+    if (search) {
+      qb.andWhere('(prefer.choiceOne ILIKE :search OR prefer.choiceTwo ILIKE :search)', { search: `%${search}%` });
     }
 
     const [data, total] = await qb
@@ -111,5 +116,52 @@ export class PreferService {
       .from(Prefer)
       .where('id = :id', { id })
       .execute();
+  }
+
+  async exportAll(modeId?: string): Promise<Prefer[]> {
+    const qb = this.dataSource
+      .createQueryBuilder()
+      .select('prefer')
+      .from(Prefer, 'prefer')
+      .leftJoinAndSelect('prefer.mode', 'mode');
+
+    if (modeId) {
+      qb.where('mode.id = :modeId', { modeId });
+    }
+
+    return qb.getMany();
+  }
+
+  async bulkCreate(items: ImportPreferItemDto[]): Promise<{ created: number; skipped: number; errors: string[] }> {
+    let created = 0;
+    let skipped = 0;
+    const errors: string[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      try {
+        await this.dataSource
+          .createQueryBuilder()
+          .insert()
+          .into(Prefer)
+          .values({
+            choiceOne: item.choiceOne,
+            choiceTwo: item.choiceTwo,
+            mode: { id: item.modeId },
+          })
+          .execute();
+        created++;
+      } catch (error) {
+        if (error.code === '23505') {
+          skipped++;
+        } else if (error.code === '23503') {
+          errors.push(`Ligne ${i + 1}: mode "${item.modeId}" introuvable`);
+        } else {
+          errors.push(`Ligne ${i + 1}: ${error.message}`);
+        }
+      }
+    }
+
+    return { created, skipped, errors };
   }
 }
