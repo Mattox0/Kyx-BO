@@ -5,7 +5,7 @@ import { ChallengeType } from '../../../types/enums/TruthDareChallengeType.js';
 export class CreateTruthDareDto {
   @IsString()
   @IsNotEmpty()
-  text: string;
+  question: string;
 
   @IsEnum(Gender)
   @IsNotEmpty()

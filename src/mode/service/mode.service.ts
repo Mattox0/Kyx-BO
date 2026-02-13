@@ -62,20 +62,12 @@ export class ModeService {
   }
 
   async update(id: string, dto: UpdateModeDto, iconPath?: string): Promise<Mode | null> {
-    const updateData: Partial<Mode> = {};
-
-    if (dto.name !== undefined) updateData.name = dto.name;
-    if (dto.description !== undefined) updateData.description = dto.description;
-    if (iconPath !== undefined) updateData.icon = iconPath;
-
-    if (Object.keys(updateData).length > 0) {
-      await this.dataSource
-        .createQueryBuilder()
-        .update(Mode)
-        .set(updateData)
-        .where('id = :id', { id })
-        .execute();
-    }
+    await this.dataSource
+      .createQueryBuilder()
+      .update(Mode)
+      .set({ ...dto, ...(iconPath !== undefined ? { iconPath } : {}) })
+      .where('id = :id', { id })
+      .execute();
 
     return this.findOne(id);
   }

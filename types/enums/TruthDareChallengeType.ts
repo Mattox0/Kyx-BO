@@ -1,4 +1,4 @@
 export enum ChallengeType {
-  ACTION = 'ACTION',
-  VERITE = 'VERITE'
+  DARE = 'DARE',
+  TRUTH = 'TRUTH'
 }

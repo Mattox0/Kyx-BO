@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity("admin-user")
@@ -20,6 +21,12 @@ export class AdminUser extends BaseEntity {
   @Column({ type: 'varchar', nullable: false })
   password: string;
 
+  @Column({ type: 'varchar', nullable: false })
+  profilePicture: string | null;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdDate: Date;
+
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedDate: Date;
 }

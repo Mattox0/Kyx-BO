@@ -6,7 +6,7 @@ import { ChallengeType } from '../../../types/enums/TruthDareChallengeType.js';
 export class ImportTruthDareItemDto {
   @IsString()
   @IsNotEmpty()
-  text: string;
+  question: string;
 
   @IsEnum(Gender)
   @IsNotEmpty()

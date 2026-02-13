@@ -1,14 +1,4 @@
-import {
-  IsString,
-} from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreatePreferDto } from './create-prefer.dto.js';
 
-export class UpdatePreferDto {
-  @IsString()
-  choiceOne: string;
-
-  @IsString()
-  choiceTwo: string;
-
-  @IsString()
-  modeId: string;
-}
+export class UpdatePreferDto extends PartialType(CreatePreferDto) {}

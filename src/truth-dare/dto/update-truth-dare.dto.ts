@@ -1,17 +1,4 @@
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { Gender } from '../../../types/enums/Gender.js';
-import { ChallengeType } from '../../../types/enums/TruthDareChallengeType.js';
+import { CreateTruthDareDto } from './create-truth-dare.dto.js';
+import { PartialType } from '@nestjs/mapped-types';
 
-export class UpdateTruthDareDto {
-  @IsString()
-  text: string;
-
-  @IsEnum(Gender)
-  gender: Gender;
-
-  @IsEnum(ChallengeType)
-  type: ChallengeType;
-
-  @IsString()
-  modeId: string;
-}
+export class UpdateTruthDareDto extends PartialType(CreateTruthDareDto) {}

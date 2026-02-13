@@ -22,7 +22,7 @@ export class TruthDareService {
     }
 
     if (search) {
-      qb.andWhere('truthDare.text ILIKE :search', { search: `%${search}%` });
+      qb.andWhere('truthDare.question ILIKE :search', { search: `%${search}%` });
     }
 
     const [data, total] = await qb
@@ -59,7 +59,7 @@ export class TruthDareService {
         .insert()
         .into(TruthDare)
         .values({
-          text: dto.text,
+          question: dto.question,
           gender: dto.gender,
           type: dto.type,
           mode: { id: dto.modeId },
@@ -80,8 +80,8 @@ export class TruthDareService {
     try {
       const updateData: Partial<TruthDare> = {};
 
-      if (dto.text !== undefined) {
-        updateData.text = dto.text;
+      if (dto.question !== undefined) {
+        updateData.question = dto.question;
       }
 
       if (dto.gender !== undefined) {
@@ -150,7 +150,7 @@ export class TruthDareService {
           .insert()
           .into(TruthDare)
           .values({
-            text: item.text,
+            question: item.question,
             gender: item.gender,
             type: item.type,
             mode: { id: item.modeId },

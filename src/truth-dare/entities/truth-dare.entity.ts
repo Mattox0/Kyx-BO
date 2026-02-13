@@ -18,7 +18,7 @@ export class TruthDare extends BaseEntity {
   id: string;
 
   @Column({ type: 'varchar', unique: true, nullable: false })
-  text: string;
+  question: string;
 
   @Column({
     type: 'enum',
@@ -32,7 +32,7 @@ export class TruthDare extends BaseEntity {
     type: 'enum',
     enum: ChallengeType,
     nullable: false,
-    default: ChallengeType.ACTION,
+    default: ChallengeType.DARE,
   })
   type: ChallengeType;
 

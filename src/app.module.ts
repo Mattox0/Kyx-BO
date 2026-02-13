@@ -10,6 +10,8 @@ import { Prefer } from './prefer/entities/prefer.entity.js';
 import { NeverHave } from './never-have/entities/never-have.entity.js';
 import { Mode } from './mode/entities/mode.entity.js';
 import { ModeModule } from './mode/mode.module.js';
+import { AdminUser } from './admin-users/entities/admin-user.entity.js';
+import { AdminUserModule } from './admin-users/admin-user.module.js';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { ModeModule } from './mode/mode.module.js';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DATABASE'),
-        entities: [TruthDare, Prefer, NeverHave, Mode],
+        entities: [TruthDare, Prefer, NeverHave, Mode, AdminUser],
         autoLoadEntities: true,
         synchronize: true, // remove prod
         extra: {
@@ -39,6 +41,7 @@ import { ModeModule } from './mode/mode.module.js';
     NeverHaveModule,
     PreferModule,
     ModeModule,
+    AdminUserModule,
   ],
   controllers: [],
   providers: [],
