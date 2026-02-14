@@ -15,5 +15,5 @@ export class CreateAdminUserDto {
 
   @IsString()
   @IsNotEmpty()
-  displayName: string;
+  name: string;
 }

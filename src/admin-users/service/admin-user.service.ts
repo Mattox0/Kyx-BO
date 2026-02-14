@@ -14,17 +14,17 @@ export class AdminUserService {
       .createQueryBuilder()
       .select([
         'adminUser.id',
-        'adminUser.displayName',
+        'adminUser.name',
         'adminUser.email',
-        'adminUser.createdDate',
-        'adminUser.updatedDate',
-        'adminUser.profilePicture',
+        'adminUser.image',
+        'adminUser.createdAt',
+        'adminUser.updatedAt',
       ])
       .from(AdminUser, 'adminUser');
 
     if (search) {
       qb.where(
-        'adminUser.displayName ILIKE :search OR adminUser.email ILIKE :search',
+        'adminUser.name ILIKE :search OR adminUser.email ILIKE :search',
         { search: `%${search}%` },
       );
     }
@@ -51,18 +51,18 @@ export class AdminUserService {
       .createQueryBuilder()
       .select([
         'adminUser.id',
-        'adminUser.displayName',
+        'adminUser.name',
         'adminUser.email',
-        'adminUser.createdDate',
-        'adminUser.updatedDate',
-        'adminUser.profilePicture',
+        'adminUser.image',
+        'adminUser.createdAt',
+        'adminUser.updatedAt',
       ])
       .from(AdminUser, 'adminUser')
       .where('adminUser.id = :id', { id })
       .getOne();
   }
 
-  async create(dto: CreateAdminUserDto, profilePicturePath?: string): Promise<AdminUser> {
+  async create(dto: CreateAdminUserDto): Promise<AdminUser> {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
     const result = await this.dataSource
@@ -70,10 +70,9 @@ export class AdminUserService {
       .insert()
       .into(AdminUser)
       .values({
-        displayName: dto.displayName,
+        name: dto.name,
         email: dto.email,
         password: hashedPassword,
-        profilePicture: profilePicturePath,
       })
       .returning('*')
       .execute();
@@ -83,22 +82,21 @@ export class AdminUserService {
     return user;
   }
 
-  async update(id: string, dto: UpdateAdminUserDto, profilePicturePath?: string): Promise<AdminUser | null> {
+  async update(id: string, dto: UpdateAdminUserDto): Promise<AdminUser | null> {
     const updateData = { ...dto };
 
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }
 
-    await this.dataSource
-      .createQueryBuilder()
-      .update(AdminUser)
-      .set({
-        ...updateData,
-        ...(profilePicturePath !== undefined ? { profilePicturePath } : {}),
-      })
-      .where('id = :id', { id })
-      .execute();
+    if (Object.keys(updateData).length > 0) {
+      await this.dataSource
+        .createQueryBuilder()
+        .update(AdminUser)
+        .set(updateData)
+        .where('id = :id', { id })
+        .execute();
+    }
 
     return this.findOne(id);
   }

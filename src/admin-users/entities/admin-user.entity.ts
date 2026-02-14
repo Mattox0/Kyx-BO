@@ -3,30 +3,46 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  OneToMany,
+  PrimaryColumn,
+  type Relation,
   UpdateDateColumn,
 } from 'typeorm';
+import { Session } from '../../auth/entities/session.entity.js';
+import { Account } from '../../auth/entities/account.entity.js';
 
 @Entity("admin-user")
 export class AdminUser extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn({ type: 'varchar' })
   id: string;
 
   @Column({ type: 'varchar', nullable: false })
-  displayName: string;
+  name: string;
 
   @Column({ type: 'varchar', unique: true, nullable: false })
   email: string;
 
-  @Column({ type: 'varchar', nullable: false })
-  password: string;
+  @Column({ type: 'varchar', nullable: true })
+  password: string | null;
 
-  @Column({ type: 'varchar', nullable: false })
-  profilePicture: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  image: string | null;
+
+  @Column({ type: 'boolean', default: false })
+  emailVerified: boolean;
+
+  @Column({ type: 'varchar', nullable: true })
+  role: string | null;
 
   @CreateDateColumn({ type: 'timestamp' })
-  createdDate: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp' })
-  updatedDate: Date;
+  updatedAt: Date;
+
+  @OneToMany('Session', 'adminUser')
+  sessions: Relation<Session>[];
+
+  @OneToMany('Account', 'adminUser')
+  accounts: Relation<Account>[];
 }

@@ -5,7 +5,14 @@ import { join } from 'path';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bodyParser: false,
+    cors: {
+      origin: process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3000',
+      credentials: true,
+    },
+  });
+
   app.useGlobalPipes(new ValidationPipe());
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
   await app.listen(process.env.PORT ?? 3000);

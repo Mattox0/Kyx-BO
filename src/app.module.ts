@@ -12,6 +12,8 @@ import { Mode } from './mode/entities/mode.entity.js';
 import { ModeModule } from './mode/mode.module.js';
 import { AdminUser } from './admin-users/entities/admin-user.entity.js';
 import { AdminUserModule } from './admin-users/admin-user.module.js';
+import { UserAuthModule } from './auth/auth.module.js';
+import { AdminAuthModule } from './auth/admin-auth.module.js';
 
 @Module({
   imports: [
@@ -42,6 +44,8 @@ import { AdminUserModule } from './admin-users/admin-user.module.js';
     PreferModule,
     ModeModule,
     AdminUserModule,
+    AdminAuthModule,
+    UserAuthModule,
   ],
   controllers: [],
   providers: [],
