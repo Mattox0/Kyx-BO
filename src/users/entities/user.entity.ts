@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Session } from '../../auth/entities/session.entity.js';
 import { Account } from '../../auth/entities/account.entity.js';
+import { Report } from '../../report/entities/report.entity.js';
 
 @Entity('user')
 export class User {
@@ -37,4 +38,7 @@ export class User {
 
   @OneToMany(() => Account, (account) => account.user)
   accounts: Account[];
+
+  @OneToMany(() => Report, (report) => report.user)
+  reports: Report[];
 }

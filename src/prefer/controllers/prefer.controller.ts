@@ -7,18 +7,21 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { CreatePreferDto } from '../dto/create-prefer.dto.js';
 import { ImportPreferDto } from '../dto/import-prefer.dto.js';
 import { Prefer } from '../entities/prefer.entity.js';
 import { PreferService } from '../service/prefer.service.js';
 import { UpdatePreferDto } from '../dto/update-prefer.dto.js';
+import { AdminAuthGuard } from '../../common/guards/admin-auth.guard.js';
 
 @Controller('prefer')
 export class PreferController {
   constructor(private readonly preferService: PreferService) {}
 
   @Post("")
+  @UseGuards(AdminAuthGuard)
   async createPrefer(@Body() dto: CreatePreferDto): Promise<Prefer> {
     return this.preferService.create(dto);
   }
@@ -34,6 +37,7 @@ export class PreferController {
   }
 
   @Put(":id")
+  @UseGuards(AdminAuthGuard)
   async updatePrefer(
     @Param('id') id: string,
     @Body() dto: UpdatePreferDto,
@@ -42,16 +46,19 @@ export class PreferController {
   }
 
   @Delete(":id")
+  @UseGuards(AdminAuthGuard)
   async deletePrefer(@Param('id') id: string): Promise<void> {
     return this.preferService.remove(id);
   }
 
   @Get("export")
+  @UseGuards(AdminAuthGuard)
   async exportPrefer(@Query('modeId') modeId?: string): Promise<Prefer[]> {
     return this.preferService.exportAll(modeId);
   }
 
   @Post("import")
+  @UseGuards(AdminAuthGuard)
   async importPrefer(@Body() dto: ImportPreferDto) {
     return this.preferService.bulkCreate(dto.questions);
   }

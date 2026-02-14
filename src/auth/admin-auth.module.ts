@@ -15,6 +15,7 @@ import { createAdminAuth } from '../lib/admin-auth.js';
       useFactory: (dataSource: DataSource) => ({
         auth: createAdminAuth(dataSource),
         disableTrustedOriginsCors: true,
+        disableGlobalAuthGuard: true,
       }),
     }),
   ],

@@ -1,0 +1,36 @@
+import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity.js';
+import { TruthDare } from '../../truth-dare/entities/truth-dare.entity.js';
+import { NeverHave } from '../../never-have/entities/never-have.entity.js';
+import { Prefer } from '../../prefer/entities/prefer.entity.js';
+import { ReportReason } from '../../../types/enums/ReportReason.js';
+
+@Entity("report")
+export class Report extends BaseEntity {
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
+
+  @Column({ type: 'varchar', nullable: false })
+  comment: string;
+
+  @Column({
+    type: 'enum',
+    enum: ReportReason,
+  })
+  reason: ReportReason;
+
+  @ManyToOne('User', { onDelete: 'CASCADE', nullable: true })
+  user: User;
+
+  @ManyToOne(() => TruthDare, { nullable: true, onDelete: 'CASCADE' })
+  truthDare: TruthDare | null;
+
+  @ManyToOne(() => NeverHave, { nullable: true, onDelete: 'CASCADE' })
+  neverHave: NeverHave | null;
+
+  @ManyToOne(() => Prefer, { nullable: true, onDelete: 'CASCADE' })
+  prefer: Prefer | null;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
+}

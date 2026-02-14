@@ -7,18 +7,21 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { TruthDareService } from '../service/truth-dare.service.js';
 import { TruthDare } from '../entities/truth-dare.entity.js';
 import { CreateTruthDareDto } from '../dto/create-truth-dare.dto.js';
 import { ImportTruthDareDto } from '../dto/import-truth-dare.dto.js';
 import { UpdateTruthDareDto } from '../dto/update-truth-dare.dto.js';
+import { AdminAuthGuard } from '../../common/guards/admin-auth.guard.js';
 
 @Controller('truth-dare')
 export class TruthDareController {
   constructor(private readonly truthDareService: TruthDareService) {}
 
   @Post("")
+  @UseGuards(AdminAuthGuard)
   async createTruthDare(@Body() dto: CreateTruthDareDto): Promise<TruthDare> {
     return this.truthDareService.create(dto);
   }
@@ -34,6 +37,7 @@ export class TruthDareController {
   }
 
   @Put(":id")
+  @UseGuards(AdminAuthGuard)
   async updateTruthDare(
     @Param('id') id: string,
     @Body() dto: UpdateTruthDareDto,
@@ -42,16 +46,19 @@ export class TruthDareController {
   }
 
   @Delete(":id")
+  @UseGuards(AdminAuthGuard)
   async deleteTruthDare(@Param('id') id: string): Promise<void> {
     return this.truthDareService.remove(id);
   }
 
   @Get("export")
+  @UseGuards(AdminAuthGuard)
   async exportTruthDare(@Query('modeId') modeId?: string): Promise<TruthDare[]> {
     return this.truthDareService.exportAll(modeId);
   }
 
   @Post("import")
+  @UseGuards(AdminAuthGuard)
   async importTruthDare(@Body() dto: ImportTruthDareDto) {
     return this.truthDareService.bulkCreate(dto.questions);
   }

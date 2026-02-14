@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   NotFoundException,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -17,6 +18,7 @@ import { ModeService } from '../service/mode.service.js';
 import { CreateModeDto } from '../dto/create-mode.dto.js';
 import { UpdateModeDto } from '../dto/update-mode.dto.js';
 import { Mode } from '../entities/mode.entity.js';
+import { AdminAuthGuard } from '../../common/guards/admin-auth.guard.js';
 
 const multerOptions = {
   storage: diskStorage({
@@ -33,6 +35,7 @@ export class ModeController {
   constructor(private readonly modeService: ModeService) {}
 
   @Post()
+  @UseGuards(AdminAuthGuard)
   @UseInterceptors(FileInterceptor('icon', multerOptions))
   async create(
     @Body() dto: CreateModeDto,
@@ -60,6 +63,7 @@ export class ModeController {
   }
 
   @Put(':id')
+  @UseGuards(AdminAuthGuard)
   @UseInterceptors(FileInterceptor('icon', multerOptions))
   async update(
     @Param('id') id: string,
@@ -73,6 +77,7 @@ export class ModeController {
   }
 
   @Delete(':id')
+  @UseGuards(AdminAuthGuard)
   async remove(@Param('id') id: string): Promise<void> {
     return this.modeService.remove(id);
   }
