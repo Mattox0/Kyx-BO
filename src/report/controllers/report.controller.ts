@@ -27,8 +27,9 @@ export class ReportController {
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('search') search?: string,
+    @Query('resolved') resolved?: boolean,
   ) {
-    return this.reportService.findAll(+(page ?? 1), +(limit ?? 50), search);
+    return this.reportService.findAll(+(page ?? 1), +(limit ?? 50), search, resolved);
   }
 
   @Get(":id")

@@ -6,8 +6,6 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Session } from '../../auth/entities/session.entity.js';
-import { Account } from '../../auth/entities/account.entity.js';
 import { Report } from '../../report/entities/report.entity.js';
 
 @Entity('user')
@@ -21,23 +19,14 @@ export class User {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ type: 'boolean', default: false })
-  emailVerified: boolean;
-
-  @Column({ type: 'varchar', nullable: true })
-  image: string | null;
+  @Column({ type: 'varchar', nullable: true, select: false })
+  password: string | null;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @OneToMany(() => Session, (session) => session.user)
-  sessions: Session[];
-
-  @OneToMany(() => Account, (account) => account.user)
-  accounts: Account[];
 
   @OneToMany(() => Report, (report) => report.user)
   reports: Report[];

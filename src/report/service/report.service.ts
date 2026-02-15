@@ -1,14 +1,30 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { Report } from '../entities/report.entity.js';
 import { CreateReportDto } from '../dto/create-report.dto.js';
 import { UpdateReportDto } from '../dto/update-report.dto.js';
+import { TruthDare } from '../../truth-dare/entities/truth-dare.entity.js';
+import { NeverHave } from '../../never-have/entities/never-have.entity.js';
+import { Prefer } from '../../prefer/entities/prefer.entity.js';
 
 @Injectable()
 export class ReportService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async findAll(page: number, limit: number, search?: string) {
+  private async resolveQuestion(questionId: string): Promise<{ truthDare?: { id: string }; neverHave?: { id: string }; prefer?: { id: string } }> {
+    const truthDare = await this.dataSource.getRepository(TruthDare).findOne({ where: { id: questionId } });
+    if (truthDare) return { truthDare: { id: questionId } };
+
+    const neverHave = await this.dataSource.getRepository(NeverHave).findOne({ where: { id: questionId } });
+    if (neverHave) return { neverHave: { id: questionId } };
+
+    const prefer = await this.dataSource.getRepository(Prefer).findOne({ where: { id: questionId } });
+    if (prefer) return { prefer: { id: questionId } };
+
+    throw new NotFoundException(`Question ${questionId} not found`);
+  }
+
+  async findAll(page: number, limit: number, search?: string, resolved?: boolean) {
     const qb = this.dataSource
       .createQueryBuilder()
       .select('report')
@@ -19,7 +35,11 @@ export class ReportService {
       .leftJoinAndSelect('report.user', 'user');
 
     if (search) {
-      qb.where('report.comment ILIKE :search', { search: `%${search}%` });
+      qb.where('(report.comment ILIKE :search OR CAST(report.id AS TEXT) ILIKE :search)', { search: `%${search}%` });
+    }
+
+    if (resolved !== undefined) {
+      qb.andWhere('report.resolved = :resolved', { resolved });
     }
 
     const [data, total] = await qb
@@ -54,6 +74,8 @@ export class ReportService {
   }
 
   async create(dto: CreateReportDto): Promise<Report> {
+    const questionRelation = dto.questionId ? await this.resolveQuestion(dto.questionId) : {};
+
     const result = await this.dataSource
       .createQueryBuilder()
       .insert()
@@ -61,9 +83,8 @@ export class ReportService {
       .values({
         comment: dto.comment,
         reason: dto.reason,
-        ...(dto.truthDareId ? { truthDare: { id: dto.truthDareId } } : {}),
-        ...(dto.neverHaveId ? { neverHave: { id: dto.neverHaveId } } : {}),
-        ...(dto.preferId ? { prefer: { id: dto.preferId } } : {}),
+        ...( dto.userId && { user: { id: dto.userId } }),
+        ...questionRelation,
       })
       .returning('*')
       .execute();
@@ -76,9 +97,15 @@ export class ReportService {
 
     if (dto.comment !== undefined) updateData.comment = dto.comment;
     if (dto.reason !== undefined) updateData.reason = dto.reason;
-    if (dto.truthDareId !== undefined) updateData.truthDare = { id: dto.truthDareId };
-    if (dto.neverHaveId !== undefined) updateData.neverHave = { id: dto.neverHaveId };
-    if (dto.preferId !== undefined) updateData.prefer = { id: dto.preferId };
+    if (dto.resolved !== undefined) updateData.resolved = dto.resolved;
+
+    if (dto.questionId !== undefined) {
+      const questionRelation = await this.resolveQuestion(dto.questionId);
+      updateData.truthDare = null;
+      updateData.neverHave = null;
+      updateData.prefer = null;
+      Object.assign(updateData, questionRelation);
+    }
 
     if (Object.keys(updateData).length > 0) {
       await this.dataSource

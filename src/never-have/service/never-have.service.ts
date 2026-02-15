@@ -22,7 +22,7 @@ export class NeverHaveService {
     }
 
     if (search) {
-      qb.andWhere('neverHave.question ILIKE :search', { search: `%${search}%` });
+      qb.andWhere('(neverHave.question ILIKE :search OR CAST(neverHave.id AS TEXT) ILIKE :search)', { search: `%${search}%` });
     }
 
     const [data, total] = await qb

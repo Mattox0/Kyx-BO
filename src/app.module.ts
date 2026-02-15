@@ -14,7 +14,7 @@ import { AdminUser } from './admin-users/entities/admin-user.entity.js';
 import { AdminUserModule } from './admin-users/admin-user.module.js';
 import { Report } from './report/entities/report.entity.js';
 import { ReportModule } from './report/report.module.js';
-import { UserAuthModule } from './auth/auth.module.js';
+import { User } from './users/entities/user.entity.js';
 import { AdminAuthModule } from './auth/admin-auth.module.js';
 
 @Module({
@@ -32,7 +32,7 @@ import { AdminAuthModule } from './auth/admin-auth.module.js';
         username: configService.get<string>('POSTGRES_USER'),
         password: configService.get<string>('POSTGRES_PASSWORD'),
         database: configService.get<string>('POSTGRES_DATABASE'),
-        entities: [TruthDare, Prefer, NeverHave, Mode, AdminUser, Report],
+        entities: [TruthDare, Prefer, NeverHave, Mode, AdminUser, User, Report],
         autoLoadEntities: true,
         synchronize: true, // remove prod
         extra: {
@@ -48,7 +48,6 @@ import { AdminAuthModule } from './auth/admin-auth.module.js';
     AdminUserModule,
     ReportModule,
     AdminAuthModule,
-    UserAuthModule,
   ],
   controllers: [],
   providers: [],

@@ -1,23 +1,19 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth';
-import { DataSource } from 'typeorm';
-import { AdminUser } from '../admin-users/entities/admin-user.entity.js';
-import { AdminSession } from './entities/admin-session.entity.js';
-import { AdminAccount } from './entities/admin-account.entity.js';
-import { createAdminAuth } from '../lib/admin-auth.js';
+import { Global, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
+@Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AdminUser, AdminSession, AdminAccount]),
-    BetterAuthModule.forRootAsync({
-      inject: [DataSource],
-      useFactory: (dataSource: DataSource) => ({
-        auth: createAdminAuth(dataSource),
-        disableTrustedOriginsCors: true,
-        disableGlobalAuthGuard: true,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_ADMIN_SECRET'),
+        signOptions: { expiresIn: '7d' },
       }),
     }),
   ],
+  exports: [JwtModule],
 })
 export class AdminAuthModule {}

@@ -22,7 +22,7 @@ export class TruthDareService {
     }
 
     if (search) {
-      qb.andWhere('truthDare.question ILIKE :search', { search: `%${search}%` });
+      qb.andWhere('(truthDare.question ILIKE :search OR CAST(truthDare.id AS TEXT) ILIKE :search)', { search: `%${search}%` });
     }
 
     const [data, total] = await qb

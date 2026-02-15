@@ -10,14 +10,10 @@ export class CreateReportDto {
   reason: ReportReason;
 
   @IsString()
-  @IsOptional()
-  truthDareId?: string;
+  @IsNotEmpty()
+  questionId?: string;
 
-  @IsString()
   @IsOptional()
-  neverHaveId?: string;
-
   @IsString()
-  @IsOptional()
-  preferId?: string;
+  userId?: string;
 }

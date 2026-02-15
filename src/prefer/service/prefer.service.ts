@@ -22,7 +22,7 @@ export class PreferService {
     }
 
     if (search) {
-      qb.andWhere('(prefer.choiceOne ILIKE :search OR prefer.choiceTwo ILIKE :search)', { search: `%${search}%` });
+      qb.andWhere('(prefer.choiceOne ILIKE :search OR prefer.choiceTwo ILIKE :search OR CAST(prefer.id AS TEXT) ILIKE :search)', { search: `%${search}%` });
     }
 
     const [data, total] = await qb

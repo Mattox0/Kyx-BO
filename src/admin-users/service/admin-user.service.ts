@@ -12,19 +12,12 @@ export class AdminUserService {
   async findAll(page: number, limit: number, search?: string) {
     const qb = this.dataSource
       .createQueryBuilder()
-      .select([
-        'adminUser.id',
-        'adminUser.name',
-        'adminUser.email',
-        'adminUser.image',
-        'adminUser.createdAt',
-        'adminUser.updatedAt',
-      ])
+      .select('adminUser')
       .from(AdminUser, 'adminUser');
 
     if (search) {
       qb.where(
-        'adminUser.name ILIKE :search OR adminUser.email ILIKE :search',
+        'adminUser.name ILIKE :search OR adminUser.email ILIKE :search OR CAST(adminUser.id AS TEXT) ILIKE :search',
         { search: `%${search}%` },
       );
     }
@@ -49,17 +42,16 @@ export class AdminUserService {
   async findOne(id: string): Promise<AdminUser | null> {
     return this.dataSource
       .createQueryBuilder()
-      .select([
-        'adminUser.id',
-        'adminUser.name',
-        'adminUser.email',
-        'adminUser.image',
-        'adminUser.createdAt',
-        'adminUser.updatedAt',
-      ])
+      .select('adminUser')
       .from(AdminUser, 'adminUser')
       .where('adminUser.id = :id', { id })
       .getOne();
+  }
+
+  async findByEmail(email: string): Promise<AdminUser | null> {
+    return this.dataSource
+      .getRepository(AdminUser)
+      .findOne({ where: { email } });
   }
 
   async create(dto: CreateAdminUserDto): Promise<AdminUser> {
@@ -70,7 +62,7 @@ export class AdminUserService {
       .insert()
       .into(AdminUser)
       .values({
-        name: dto.name,
+        displayName: dto.displayName,
         email: dto.email,
         password: hashedPassword,
       })

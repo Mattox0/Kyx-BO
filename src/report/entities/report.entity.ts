@@ -19,6 +19,9 @@ export class Report extends BaseEntity {
   })
   reason: ReportReason;
 
+  @Column({ type: 'boolean', default: false })
+  resolved: boolean;
+
   @ManyToOne('User', { onDelete: 'CASCADE', nullable: true })
   user: User;
 
