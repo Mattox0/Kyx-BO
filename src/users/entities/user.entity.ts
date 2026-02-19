@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Report } from '../../report/entities/report.entity.js';
+import { Suggestion } from '../../suggestion/entities/suggestion.entity.js';
 
 @Entity('user')
 export class User {
@@ -30,4 +31,7 @@ export class User {
 
   @OneToMany(() => Report, (report) => report.user)
   reports: Report[];
+
+  @OneToMany(() => Suggestion, (suggestion) => suggestion.user)
+  suggestions: Suggestion[];
 }

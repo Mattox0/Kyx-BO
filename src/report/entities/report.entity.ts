@@ -1,4 +1,12 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  type Relation,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity.js';
 import { TruthDare } from '../../truth-dare/entities/truth-dare.entity.js';
 import { NeverHave } from '../../never-have/entities/never-have.entity.js';
@@ -23,7 +31,7 @@ export class Report extends BaseEntity {
   resolved: boolean;
 
   @ManyToOne('User', { onDelete: 'CASCADE', nullable: true })
-  user: User;
+  user: Relation<User>;
 
   @ManyToOne(() => TruthDare, { nullable: true, onDelete: 'CASCADE' })
   truthDare: TruthDare | null;

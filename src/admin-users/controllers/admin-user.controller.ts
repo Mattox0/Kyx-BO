@@ -28,7 +28,7 @@ export class AdminUserController {
 
   @Post("login")
   async login(@Body() body: { email: string; password: string }) {
-    const user = await this.adminUserService.findByEmail(body.email);
+    const user = await this.adminUserService.findByEmailAndPassword(body.email);
     if (!user || !user.password) {
       throw new UnauthorizedException('Invalid credentials');
     }

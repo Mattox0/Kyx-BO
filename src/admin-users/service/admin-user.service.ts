@@ -48,10 +48,13 @@ export class AdminUserService {
       .getOne();
   }
 
-  async findByEmail(email: string): Promise<AdminUser | null> {
+  async findByEmailAndPassword(email: string): Promise<AdminUser | null> {
     return this.dataSource
       .getRepository(AdminUser)
-      .findOne({ where: { email } });
+      .createQueryBuilder('admin')
+      .where('admin.email = :email', { email })
+      .addSelect('admin.password')
+      .getOne();
   }
 
   async create(dto: CreateAdminUserDto): Promise<AdminUser> {

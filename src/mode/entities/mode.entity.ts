@@ -3,9 +3,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { GameType } from '../../../types/enums/GameType.js';
+import { Suggestion } from '../../suggestion/entities/suggestion.entity.js';
 
 @Entity("mode")
 export class Mode extends BaseEntity {
@@ -29,4 +31,7 @@ export class Mode extends BaseEntity {
     enum: GameType,
   })
   gameType: GameType;
+
+  @OneToMany(() => Suggestion, (suggestion) => suggestion.mode)
+  suggestions: Suggestion[]
 }
