@@ -13,6 +13,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe());
+  app.setGlobalPrefix('api');
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });
   await app.listen(process.env.PORT ?? 3000);
 }
