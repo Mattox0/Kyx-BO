@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
+import { useContainer } from 'class-validator';
 import { join } from 'path';
 import { AppModule } from './app.module.js';
 
@@ -11,7 +12,7 @@ async function bootstrap() {
       credentials: true,
     },
   });
-
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api');
   app.useStaticAssets(join(process.cwd(), 'uploads'), { prefix: '/uploads' });

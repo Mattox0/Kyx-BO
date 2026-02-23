@@ -15,6 +15,7 @@ import { ImportNeverHaveDto } from '../dto/import-never-have.dto.js';
 import { NeverHaveService } from '../service/never-have.service.js';
 import { UpdateNeverHaveDto } from '../dto/update-never-have.dto.js';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard.js';
+import { CreatePartySoloNeverHaveDto } from '../dto/create-party-solo-never-have.dto.js';
 
 @Controller('never-have')
 export class NeverHaveController {
@@ -61,5 +62,10 @@ export class NeverHaveController {
   @UseGuards(AdminAuthGuard)
   async importNeverHave(@Body() dto: ImportNeverHaveDto) {
     return this.neverHaveService.bulkCreate(dto.questions);
+  }
+
+  @Post("create-party/solo")
+  async createPartySolo(@Body() dto: CreatePartySoloNeverHaveDto) {
+    return this.neverHaveService.createPartySolo(dto)
   }
 }

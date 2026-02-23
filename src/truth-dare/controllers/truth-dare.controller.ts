@@ -15,6 +15,7 @@ import { CreateTruthDareDto } from '../dto/create-truth-dare.dto.js';
 import { ImportTruthDareDto } from '../dto/import-truth-dare.dto.js';
 import { UpdateTruthDareDto } from '../dto/update-truth-dare.dto.js';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard.js';
+import { CreatePartyTruthDareDto } from '../dto/create-party-truth-dare.dto.js';
 
 @Controller('truth-dare')
 export class TruthDareController {
@@ -61,5 +62,10 @@ export class TruthDareController {
   @UseGuards(AdminAuthGuard)
   async importTruthDare(@Body() dto: ImportTruthDareDto) {
     return this.truthDareService.bulkCreate(dto.questions);
+  }
+
+  @Post("create-party/solo")
+  async createPartySolo(@Body() dto: CreatePartyTruthDareDto) {
+    return this.truthDareService.createPartySolo(dto);
   }
 }

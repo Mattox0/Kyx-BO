@@ -5,6 +5,7 @@ import { ImportNeverHaveItemDto } from '../dto/import-never-have.dto.js';
 import { NeverHave } from '../entities/never-have.entity.js';
 import { UpdateNeverHaveDto } from '../dto/update-never-have.dto.js';
 import { Mode } from '../../mode/entities/mode.entity.js';
+import { CreatePartySoloNeverHaveDto } from '../dto/create-party-solo-never-have.dto.js';
 
 @Injectable()
 export class NeverHaveService {
@@ -157,5 +158,16 @@ export class NeverHaveService {
     }
 
     return { created, skipped, errors };
+  }
+
+  async createPartySolo(dto: CreatePartySoloNeverHaveDto): Promise<NeverHave[]> {
+    return this.dataSource
+      .createQueryBuilder()
+      .select('neverHave')
+      .from(NeverHave, 'neverHave')
+      .where('neverHave.modeId IN (:...modeIds)', { modeIds: dto.modes })
+      .orderBy('RANDOM()')
+      .take(100)
+      .getMany();
   }
 }

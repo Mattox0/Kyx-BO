@@ -18,6 +18,12 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            set -e
+            
+            export NVM_DIR="$HOME/.nvm"
+            source "$NVM_DIR/nvm.sh"
+            export PATH="$HOME/.nvm/versions/node/$(nvm current)/bin:$PATH"
+
             if [ "${{ github.ref_name }}" = "main" ]; then
               cd /home/debian/kyx/kyx-prod/backend
               PM2_APP="prod-nestjs"

@@ -15,6 +15,7 @@ import { Prefer } from '../entities/prefer.entity.js';
 import { PreferService } from '../service/prefer.service.js';
 import { UpdatePreferDto } from '../dto/update-prefer.dto.js';
 import { AdminAuthGuard } from '../../common/guards/admin-auth.guard.js';
+import { CreatePartyPreferDto } from '../dto/create-party-prefer.dto.js';
 
 @Controller('prefer')
 export class PreferController {
@@ -61,5 +62,10 @@ export class PreferController {
   @UseGuards(AdminAuthGuard)
   async importPrefer(@Body() dto: ImportPreferDto) {
     return this.preferService.bulkCreate(dto.questions);
+  }
+
+  @Post("create-party/solo")
+  async createPartySolo(@Body() dto: CreatePartyPreferDto) {
+    return this.preferService.createPartySolo(dto);
   }
 }

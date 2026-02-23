@@ -5,6 +5,7 @@ import { Prefer } from '../entities/prefer.entity.js';
 import { CreatePreferDto } from '../dto/create-prefer.dto.js';
 import { ImportPreferItemDto } from '../dto/import-prefer.dto.js';
 import { UpdatePreferDto } from '../dto/update-prefer.dto.js';
+import { CreatePartyPreferDto } from '../dto/create-party-prefer.dto.js';
 
 @Injectable()
 export class PreferService {
@@ -163,5 +164,16 @@ export class PreferService {
     }
 
     return { created, skipped, errors };
+  }
+
+  async createPartySolo(dto: CreatePartyPreferDto): Promise<Prefer[]> {
+    return this.dataSource
+      .createQueryBuilder()
+      .select('prefer')
+      .from(Prefer, 'prefer')
+      .where('prefer.modeId IN (:...modeIds)', { modeIds: dto.modes })
+      .orderBy('RANDOM()')
+      .take(100)
+      .getMany();
   }
 }

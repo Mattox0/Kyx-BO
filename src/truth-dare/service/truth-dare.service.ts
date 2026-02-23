@@ -5,6 +5,8 @@ import { TruthDare } from '../entities/truth-dare.entity.js';
 import { CreateTruthDareDto } from '../dto/create-truth-dare.dto.js';
 import { ImportTruthDareItemDto } from '../dto/import-truth-dare.dto.js';
 import { UpdateTruthDareDto } from '../dto/update-truth-dare.dto.js';
+import { CreatePartyTruthDareDto, UserSoloItemDto } from '../dto/create-party-truth-dare.dto.js';
+import { Gender } from '../../../types/enums/Gender.js';
 
 @Injectable()
 export class TruthDareService {
@@ -169,5 +171,38 @@ export class TruthDareService {
     }
 
     return { created, skipped, errors };
+  }
+
+  async createPartySolo(dto: CreatePartyTruthDareDto): Promise<{ question: TruthDare; targetUser: UserSoloItemDto }[]> {
+    const hasMen = dto.users.some((u) => u.gender === Gender.MAN);
+    const hasWomen = dto.users.some((u) => u.gender === Gender.FEMALE);
+
+    const allowedGenders: Gender[] = [Gender.ALL];
+    if (hasMen) allowedGenders.push(Gender.MAN);
+    if (hasWomen) allowedGenders.push(Gender.FEMALE);
+
+    const questions = await this.dataSource
+      .createQueryBuilder()
+      .select('truthDare')
+      .from(TruthDare, 'truthDare')
+      .where('truthDare.modeId IN (:...modeIds)', { modeIds: dto.modes })
+      .andWhere('truthDare.gender IN (:...genders)', { genders: allowedGenders })
+      .orderBy('RANDOM()')
+      .take(100)
+      .getMany();
+
+    const menUsers = dto.users.filter((u) => u.gender === Gender.MAN);
+    const womenUsers = dto.users.filter((u) => u.gender === Gender.FEMALE);
+
+    const pickRandom = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
+
+    return questions.map((question) => {
+      const eligibleUsers =
+        question.gender === Gender.MAN ? menUsers :
+        question.gender === Gender.FEMALE ? womenUsers :
+        dto.users;
+
+      return { question, targetUser: pickRandom(eligibleUsers) };
+    });
   }
 }

@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { LoggerMiddleware } from './common/middleware/logger.middleware.js';
+import { ModeExistsConstraint } from './common/validators/mode-exists.validator.js';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
 import { TruthDareModule } from './truth-dare/truth-dare.module.js';
@@ -53,7 +54,7 @@ import { SuggestionModule } from './suggestion/suggestion.module.js';
     AdminAuthModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [ModeExistsConstraint],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
