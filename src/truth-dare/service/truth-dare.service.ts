@@ -173,7 +173,7 @@ export class TruthDareService {
     return { created, skipped, errors };
   }
 
-  async createPartySolo(dto: CreatePartyTruthDareDto): Promise<{ question: TruthDare; targetUser: UserSoloItemDto }[]> {
+  async createPartySolo(dto: CreatePartyTruthDareDto): Promise<{ question: TruthDare; userTarget: UserSoloItemDto }[]> {
     const hasMen = dto.users.some((u) => u.gender === Gender.MAN);
     const hasWomen = dto.users.some((u) => u.gender === Gender.FEMALE);
 
@@ -203,7 +203,7 @@ export class TruthDareService {
         question.gender === Gender.FEMALE ? womenUsers :
         dto.users;
 
-      return { question, targetUser: pickRandom(eligibleUsers) };
+      return { question, questionType: 'truth-dare' as const, userTarget: pickRandom(eligibleUsers) };
     });
   }
 }

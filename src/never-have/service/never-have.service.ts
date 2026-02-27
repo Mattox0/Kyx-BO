@@ -160,8 +160,8 @@ export class NeverHaveService {
     return { created, skipped, errors };
   }
 
-  async createPartySolo(dto: CreatePartySoloNeverHaveDto): Promise<NeverHave[]> {
-    return this.dataSource
+  async createPartySolo(dto: CreatePartySoloNeverHaveDto): Promise<{ question: NeverHave; userTarget: null }[]> {
+    const questions = await this.dataSource
       .createQueryBuilder()
       .select('neverHave')
       .from(NeverHave, 'neverHave')
@@ -170,5 +170,7 @@ export class NeverHaveService {
       .orderBy('RANDOM()')
       .limit(100)
       .getMany();
+
+    return questions.map((question) => ({ question, questionType: 'never-have' as const, userTarget: null }));
   }
 }

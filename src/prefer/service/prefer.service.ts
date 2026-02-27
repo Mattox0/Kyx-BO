@@ -166,8 +166,8 @@ export class PreferService {
     return { created, skipped, errors };
   }
 
-  async createPartySolo(dto: CreatePartyPreferDto): Promise<Prefer[]> {
-    return this.dataSource
+  async createPartySolo(dto: CreatePartyPreferDto): Promise<{ question: Prefer; userTarget: null }[]> {
+    const questions = await this.dataSource
       .createQueryBuilder()
       .select('prefer')
       .from(Prefer, 'prefer')
@@ -176,5 +176,7 @@ export class PreferService {
       .orderBy('RANDOM()')
       .limit(100)
       .getMany();
+
+    return questions.map((question) => ({ question, questionType: 'prefer' as const, userTarget: null }));
   }
 }
