@@ -8,20 +8,32 @@ import {
 } from 'typeorm';
 import { Report } from '../../report/entities/report.entity.js';
 import { Suggestion } from '../../suggestion/entities/suggestion.entity.js';
+import { Gender } from '../../../types/enums/Gender.js';
 
 @Entity('user')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar' })
-  name: string;
+  @Column({ type: 'varchar', nullable: true })
+  name?: string;
 
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column({ type: 'varchar', nullable: true, select: false })
-  password: string | null;
+  // for better auth schema, default true
+  @Column({ type: 'boolean', default: true })
+  emailVerified: boolean;
+
+  // for better auth schema
+  @Column({ type: 'varchar', nullable: true })
+  image?: string;
+
+  @Column({ type: 'enum', enum: Gender, default: Gender.MAN })
+  gender: Gender;
+
+  @Column({ type: 'jsonb', nullable: true })
+  avatarOptions?: Record<string, unknown>;
 
   @CreateDateColumn()
   createdAt: Date;

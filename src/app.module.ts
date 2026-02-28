@@ -16,9 +16,12 @@ import { AdminUserModule } from './admin-users/admin-user.module.js';
 import { Report } from './report/entities/report.entity.js';
 import { ReportModule } from './report/report.module.js';
 import { User } from './users/entities/user.entity.js';
-import { AdminAuthModule } from './auth/admin-auth.module.js';
+import { auth } from './auth.js';
 import { Suggestion } from './suggestion/entities/suggestion.entity.js';
 import { SuggestionModule } from './suggestion/suggestion.module.js';
+import { AuthModule } from '@thallesp/nestjs-better-auth';
+import { AdminAuthModule } from './auth/admin.auth.js';
+import { UserModule } from './users/user.module.js';
 
 @Module({
   imports: [
@@ -44,6 +47,7 @@ import { SuggestionModule } from './suggestion/suggestion.module.js';
       }),
       inject: [ConfigService],
     } as TypeOrmModuleAsyncOptions),
+    AuthModule.forRoot({ auth, disableGlobalAuthGuard: true }),
     TruthDareModule,
     NeverHaveModule,
     PreferModule,
@@ -52,12 +56,13 @@ import { SuggestionModule } from './suggestion/suggestion.module.js';
     ReportModule,
     SuggestionModule,
     AdminAuthModule,
+    UserModule,
   ],
   controllers: [],
   providers: [ModeExistsConstraint],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(LoggerMiddleware).forRoutes('{*path}');
   }
 }

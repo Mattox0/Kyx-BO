@@ -19,9 +19,11 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db-pull": "./.github/script/db-pull.sh"
+    "db-pull": "./.github/script/db-pull.sh",
+    "auth:migrate": "better-auth migrate"
   },
   "dependencies": {
+    "@better-auth/expo": "^1.4.20",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -29,8 +31,10 @@
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "@thallesp/nestjs-better-auth": "^2.4.0",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
+    "better-auth": "^1.4.19",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "express-formidable": "^1.2.0",

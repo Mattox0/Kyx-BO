@@ -11,6 +11,7 @@ async function bootstrap() {
       origin: process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3000',
       credentials: true,
     },
+    bodyParser: false,
   });
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   app.useGlobalPipes(new ValidationPipe());
