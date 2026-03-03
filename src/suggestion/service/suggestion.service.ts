@@ -55,7 +55,7 @@ export class SuggestionService {
       .getOne();
   }
 
-  async create(dto: CreateSuggestionDto): Promise<Suggestion> {
+  async create(dto: CreateSuggestionDto, userId?: string): Promise<Suggestion> {
     try {
       const result = await this.dataSource
         .createQueryBuilder()
@@ -64,6 +64,7 @@ export class SuggestionService {
         .values({
           content: dto.content,
           mode: { id: dto.modeId },
+          ...( userId && { user: { id: userId } }),
         })
         .returning('*')
         .execute();

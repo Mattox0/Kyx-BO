@@ -6,20 +6,28 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query, UseGuards,
 } from '@nestjs/common';
 import { ReportService } from '../service/report.service.js';
 import { Report } from '../entities/report.entity.js';
 import { CreateReportDto } from '../dto/create-report.dto.js';
 import { UpdateReportDto } from '../dto/update-report.dto.js';
+import {
+  AuthGuard,
+  OptionalAuth,
+  Session,
+  type UserSession,
+} from '@thallesp/nestjs-better-auth';
 
 @Controller('report')
 export class ReportController {
   constructor(private readonly reportService: ReportService) {}
 
   @Post("")
-  async createReport(@Body() dto: CreateReportDto): Promise<Report> {
-    return this.reportService.create(dto);
+  @UseGuards(AuthGuard)
+  @OptionalAuth()
+  async createReport(@Body() dto: CreateReportDto, @Session() session: UserSession): Promise<Report> {
+    return this.reportService.create(dto, session?.user?.id);
   }
 
   @Get("")

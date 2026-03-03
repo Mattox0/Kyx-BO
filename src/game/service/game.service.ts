@@ -3,10 +3,136 @@ import { DataSource } from 'typeorm';
 import { Game } from '../entities/game.entity.js';
 import { Mode } from '../../mode/entities/mode.entity.js';
 import { CreateGameDto } from '../dto/create-game.dto.js';
+import { GameType } from '../../../types/enums/GameType.js';
 
 @Injectable()
 export class GameService {
   constructor(private readonly dataSource: DataSource) {}
+
+  async getStats() {
+    const [local, online] = await Promise.all([
+      this.dataSource.createQueryBuilder().from(Game, 'game').where('game.isLocal = true').getCount(),
+      this.dataSource.createQueryBuilder().from(Game, 'game').where('game.isLocal = false').getCount(),
+    ]);
+
+    return [
+      { name: 'local', amount: local },
+      { name: 'online', amount: online },
+    ];
+  }
+
+  async getStatsHistory(period: 'weekly' | 'monthly' | 'yearly') {
+    const DAY_NAMES = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const MONTH_NAMES = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+    if (period === 'weekly') {
+      const rows: { day: string; count: string }[] = await this.dataSource
+        .createQueryBuilder()
+        .select("DATE_TRUNC('day', game.startedAt)", 'day')
+        .addSelect('COUNT(*)', 'count')
+        .from(Game, 'game')
+        .where("game.startedAt >= DATE_TRUNC('day', NOW()) - INTERVAL '6 days'")
+        .groupBy("DATE_TRUNC('day', game.startedAt)")
+        .orderBy("DATE_TRUNC('day', game.startedAt)", 'ASC')
+        .getRawMany();
+
+      return Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        const key = date.toISOString().split('T')[0];
+        const row = rows.find((r) => new Date(r.day).toISOString().split('T')[0] === key);
+        return { x: DAY_NAMES[date.getDay()], y: row ? parseInt(row.count, 10) : 0 };
+      });
+    }
+
+    if (period === 'monthly') {
+      const rows: { month: string; count: string }[] = await this.dataSource
+        .createQueryBuilder()
+        .select("EXTRACT(MONTH FROM game.startedAt)", 'month')
+        .addSelect('COUNT(*)', 'count')
+        .from(Game, 'game')
+        .where("EXTRACT(YEAR FROM game.startedAt) = EXTRACT(YEAR FROM NOW())")
+        .groupBy("EXTRACT(MONTH FROM game.startedAt)")
+        .orderBy('month', 'ASC')
+        .getRawMany();
+
+      return Array.from({ length: 12 }, (_, i) => {
+        const row = rows.find((r) => parseInt(r.month, 10) === i + 1);
+        return { x: MONTH_NAMES[i], y: row ? parseInt(row.count, 10) : 0 };
+      });
+    }
+
+    // yearly
+    const rows: { year: string; count: string }[] = await this.dataSource
+      .createQueryBuilder()
+      .select("EXTRACT(YEAR FROM game.startedAt)", 'year')
+      .addSelect('COUNT(*)', 'count')
+      .from(Game, 'game')
+      .groupBy("EXTRACT(YEAR FROM game.startedAt)")
+      .orderBy('year', 'ASC')
+      .getRawMany();
+
+    return rows.map((r) => ({ x: String(parseInt(r.year, 10)), y: parseInt(r.count, 10) }));
+  }
+
+  async getStatsByMode(gameType: GameType) {
+    const rows: { name: string; count: string }[] = await this.dataSource
+      .createQueryBuilder()
+      .select('mode.name', 'name')
+      .addSelect('COUNT(game.id)', 'count')
+      .from(Game, 'game')
+      .innerJoin('game.modes', 'mode')
+      .where('game.gameType = :gameType', { gameType })
+      .groupBy('mode.id')
+      .getRawMany();
+
+    return rows.map((r) => ({ name: r.name, amount: parseInt(r.count, 10) }));
+  }
+
+  async getStatsByType() {
+    const rows: { gameType: string; count: string }[] = await this.dataSource
+      .createQueryBuilder()
+      .select('game.gameType', 'gameType')
+      .addSelect('COUNT(*)', 'count')
+      .from(Game, 'game')
+      .groupBy('game.gameType')
+      .getRawMany();
+
+    return rows.map((r) => ({ name: r.gameType, amount: parseInt(r.count, 10) }));
+  }
+
+  async findAll(page: number, limit: number, search?: string) {
+    const qb = this.dataSource
+      .createQueryBuilder()
+      .select('game')
+      .from(Game, 'game')
+      .leftJoinAndSelect('game.creator', 'creator')
+      .leftJoinAndSelect('game.modes', 'modes');
+
+    if (search) {
+      qb.where(
+        '(CAST(game.gameType AS TEXT) ILIKE :search OR creator.name ILIKE :search OR creator.email ILIKE :search OR CAST(game.id AS TEXT) ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    const [data, total] = await qb
+      .orderBy('game.startedAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      totalPages,
+      hasPreviousPage: page > 1,
+      hasNextPage: page < totalPages,
+    };
+  }
 
   async create(dto: CreateGameDto, userId?: string): Promise<Game> {
     const modes = await this.dataSource

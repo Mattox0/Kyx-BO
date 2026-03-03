@@ -73,7 +73,7 @@ export class ReportService {
       .getOne();
   }
 
-  async create(dto: CreateReportDto): Promise<Report> {
+  async create(dto: CreateReportDto, userId?: string): Promise<Report> {
     const questionRelation = dto.questionId ? await this.resolveQuestion(dto.questionId) : {};
 
     const result = await this.dataSource
@@ -83,7 +83,7 @@ export class ReportService {
       .values({
         comment: dto.comment,
         reason: dto.reason,
-        ...( dto.userId && { user: { id: dto.userId } }),
+        ...( userId && { user: { id: userId } }),
         ...questionRelation,
       })
       .returning('*')

@@ -12,8 +12,4 @@ export class CreateReportDto {
   @IsString()
   @IsNotEmpty()
   questionId?: string;
-
-  @IsOptional()
-  @IsString()
-  userId?: string;
 }

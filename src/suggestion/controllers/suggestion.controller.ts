@@ -6,21 +6,28 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query, UseGuards,
 } from '@nestjs/common';
 import { SuggestionService } from '../service/suggestion.service.js';
 import { Suggestion } from '../entities/suggestion.entity.js';
 import { CreateSuggestionDto } from '../dto/create-suggestion.dto.js';
 import { UpdateSuggestionDto } from '../dto/update-suggestion.dto.js';
+import {
+  AuthGuard,
+  OptionalAuth,
+  Session,
+  type UserSession,
+} from '@thallesp/nestjs-better-auth';
 
 @Controller('suggestion')
 export class SuggestionController {
   constructor(private readonly suggestionService: SuggestionService) {}
 
   @Post()
-  async createSuggestion(@Body() dto: CreateSuggestionDto): Promise<Suggestion> {
-    // METTRE LE USER CONNECTE SI IL L'EST
-    return this.suggestionService.create(dto);
+  @UseGuards(AuthGuard)
+  @OptionalAuth()
+  async createSuggestion(@Body() dto: CreateSuggestionDto, @Session() session: UserSession): Promise<Suggestion> {
+    return this.suggestionService.create(dto, session?.user?.id);
   }
 
   @Get()
