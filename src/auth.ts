@@ -2,6 +2,22 @@ import 'dotenv/config';
 import { betterAuth } from "better-auth";
 import { Pool } from "pg";
 import { expo } from '@better-auth/expo';
+import { SignJWT, importPKCS8 } from 'jose';
+
+async function generateAppleClientSecret() {
+  const privateKey = await importPKCS8(
+    (process.env.APPLE_PRIVATE_KEY as string).replace(/\\n/g, '\n'),
+    'ES256',
+  );
+  return new SignJWT({})
+    .setProtectedHeader({ alg: 'ES256', kid: process.env.APPLE_KEY_ID as string })
+    .setIssuedAt()
+    .setIssuer(process.env.APPLE_TEAM_ID as string)
+    .setAudience('https://appleid.apple.com')
+    .setSubject(process.env.APPLE_CLIENT_ID as string)
+    .setExpirationTime('180d')
+    .sign(privateKey);
+}
 
 export const auth = betterAuth({
   advanced: {
@@ -16,7 +32,7 @@ export const auth = betterAuth({
     'kyx-dev://*',
     'kyx://*',
     'https://appleid.apple.com',
-    'https://app-kyx.fr"',
+    'https://app-kyx.fr',
   ],
   basePath: '/auth',
   database: new Pool({
@@ -81,7 +97,7 @@ export const auth = betterAuth({
     },
     apple: {
       clientId: process.env.APPLE_CLIENT_ID as string,
-      clientSecret: process.env.APPLE_CLIENT_SECRET as string,
+      clientSecret: await generateAppleClientSecret(),
       appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER as string,
     },
   },

@@ -9,7 +9,12 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin: (origin, callback) => {
-        if (!origin || origin === (process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3000')) {
+        const allowedOrigins = [
+          process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3000',
+          'https://appleid.apple.com',
+          'https://app-kyx.fr',
+        ];
+        if (!origin || allowedOrigins.includes(origin)) {
           callback(null, true);
         } else {
           callback(new Error('Not allowed by CORS'));
