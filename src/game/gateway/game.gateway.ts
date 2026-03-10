@@ -26,10 +26,12 @@ export class GameQuestionWebsocketGateway
   constructor(private readonly gameSessionService: GameSessionService) {}
 
   async handleConnection(client: Socket): Promise<void> {
+    console.log(`[WS] handleConnection called, socket: ${client.id}`);
     const token = (client.handshake.auth?.token
       ?? client.handshake.query?.token) as string | undefined;
 
     if (!token) {
+      console.log(`[WS] Rejected: no token`);
       client.emit('error', { message: 'Authentication required' });
       client.disconnect();
       return;
@@ -40,6 +42,7 @@ export class GameQuestionWebsocketGateway
     });
 
     if (!session?.user) {
+      console.log(`[WS] Rejected: invalid session (token: ${token?.slice(0, 10)}...)`);
       client.emit('error', { message: 'Invalid session' });
       client.disconnect();
       return;
@@ -47,6 +50,7 @@ export class GameQuestionWebsocketGateway
 
     const code = client.handshake.query.code as string;
     if (!code) {
+      console.log(`[WS] Rejected: no game code`);
       client.emit('error', { message: 'Game code required' });
       client.disconnect();
       return;
@@ -54,6 +58,7 @@ export class GameQuestionWebsocketGateway
 
     const game = await this.gameSessionService.getGame(code);
     if (!game) {
+      console.log(`[WS] Rejected: game not found (code: ${code})`);
       client.emit('error', { message: 'Game not found' });
       client.disconnect();
       return;
