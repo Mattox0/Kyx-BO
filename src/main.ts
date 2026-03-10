@@ -8,7 +8,13 @@ import { AppModule } from './app.module.js';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
-      origin: process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3000',
+      origin: (origin, callback) => {
+        if (!origin || origin === (process.env.ADMIN_FRONTEND_URL ?? 'http://localhost:3000')) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     },
     bodyParser: false,
