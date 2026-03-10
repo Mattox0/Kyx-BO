@@ -10,27 +10,38 @@ export const auth = betterAuth({
     },
   },
   plugins: [expo()],
-  trustedOrigins: ["kyx-dev://", "kyx://", 'kyx-dev://*', 'kyx://*'],
+  trustedOrigins: [
+    'kyx-dev://',
+    'kyx://',
+    'kyx-dev://*',
+    'kyx://*',
+    'https://appleid.apple.com',
+    'https://app-kyx.fr"',
+  ],
   basePath: '/auth',
   database: new Pool({
     host: process.env.POSTGRES_HOST,
     port: Number(process.env.POSTGRES_PORT),
     user: process.env.POSTGRES_USER,
-    password: process.env.POSTGRES_PASSWORD ?? "",
+    password: process.env.POSTGRES_PASSWORD ?? '',
     database: process.env.POSTGRES_DATABASE,
-    ssl: process.env.POSTGRES_SSL === "true",
+    ssl: process.env.POSTGRES_SSL === 'true',
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false
+    requireEmailVerification: false,
   },
   databaseHooks: {
     user: {
       create: {
         before: async (user) => {
           const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-          const friendCode = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-          const name = user.name === user.email ? null as unknown as string : user.name;
+          const friendCode = Array.from(
+            { length: 6 },
+            () => chars[Math.floor(Math.random() * chars.length)],
+          ).join('');
+          const name =
+            user.name === user.email ? (null as unknown as string) : user.name;
           return { data: { ...user, name, friendCode } };
         },
       },
@@ -38,21 +49,21 @@ export const auth = betterAuth({
   },
   user: {
     deleteUser: {
-      enabled: true
+      enabled: true,
     },
     additionalFields: {
       gender: {
-        type: "string",
+        type: 'string',
         required: false,
         returned: true,
       },
       avatarOptions: {
-        type: "string",
+        type: 'string',
         required: false,
         returned: true,
       },
       friendCode: {
-        type: "string",
+        type: 'string',
         required: false,
         returned: true,
       },
@@ -67,6 +78,11 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       redirectURI: `${process.env.BETTER_AUTH_URL}/auth/callback/google`,
+    },
+    apple: {
+      clientId: process.env.APPLE_CLIENT_ID as string,
+      clientSecret: process.env.APPLE_CLIENT_SECRET as string,
+      appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER as string,
     },
   },
 });

@@ -26,7 +26,8 @@ export class GameQuestionWebsocketGateway
   constructor(private readonly gameSessionService: GameSessionService) {}
 
   async handleConnection(client: Socket): Promise<void> {
-    const cookie = client.handshake.auth?.cookie as string | undefined;
+    const cookie = client.handshake.auth?.cookie as string | undefined
+      ?? client.handshake.headers?.cookie as string | undefined;
 
     if (!cookie) {
       client.emit('error', { message: 'Authentication required' });
