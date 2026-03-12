@@ -45,7 +45,7 @@ import { RedisModule } from './redis/redis.module.js';
         autoLoadEntities: true,
         synchronize: false,
         migrationsRun: true,
-        migrations: ['migrations/*.ts'],
+        migrations: [process.env.NODE_ENV === 'production' ? 'dist/migrations/*.js' : 'migrations/*.ts'],
         extra: {
           ssl: configService.getOrThrow('POSTGRES_SSL') === 'true',
         },
