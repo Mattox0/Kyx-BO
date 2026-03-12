@@ -65,8 +65,7 @@ export class PreferService {
           choiceOne: dto.choiceOne,
           choiceTwo: dto.choiceTwo,
           mode: { id: dto.modeId },
-          mentionedUserOneGender: dto.mentionedUserOneGender ?? null,
-          mentionedUserTwoGender: dto.mentionedUserTwoGender ?? null,
+          mentionedUserGender: dto.mentionedUserGender ?? null,
         })
         .returning('*')
         .execute();
@@ -96,12 +95,8 @@ export class PreferService {
         updateData.mode = { id: dto.modeId } as Mode;
       }
 
-      if (dto.mentionedUserOneGender !== undefined) {
-        updateData.mentionedUserOneGender = dto.mentionedUserOneGender;
-      }
-
-      if (dto.mentionedUserTwoGender !== undefined) {
-        updateData.mentionedUserTwoGender = dto.mentionedUserTwoGender;
+      if (dto.mentionedUserGender !== undefined) {
+        updateData.mentionedUserGender = dto.mentionedUserGender;
       }
 
       if (Object.keys(updateData).length > 0) {
@@ -161,8 +156,7 @@ export class PreferService {
             choiceOne: item.choiceOne,
             choiceTwo: item.choiceTwo,
             mode: { id: item.modeId },
-            mentionedUserOneGender: (item as any).mentionedUserOneGender ?? null,
-            mentionedUserTwoGender: (item as any).mentionedUserTwoGender ?? null,
+            mentionedUserGender: item.mentionedUserGender ?? null,
           })
           .execute();
         created++;
@@ -180,7 +174,7 @@ export class PreferService {
     return { created, skipped, errors };
   }
 
-  async createPartySolo(dto: CreatePartyPreferDto): Promise<{ question: Prefer; questionType: string; userTarget: null; userMentionedOne: UserSoloItemDto | null; userMentionedTwo: UserSoloItemDto | null }[]> {
+  async createPartySolo(dto: CreatePartyPreferDto): Promise<{ question: Prefer; questionType: string; userTarget: null; userMentioned: UserSoloItemDto | null }[]> {
     const hasMen = dto.users.some((u) => u.gender === Gender.MAN);
     const hasWomen = dto.users.some((u) => u.gender === Gender.FEMALE);
 
@@ -194,8 +188,7 @@ export class PreferService {
       .from(Prefer, 'prefer')
       .leftJoinAndSelect('prefer.mode', 'mode')
       .where('prefer.modeId IN (:...modeIds)', { modeIds: dto.modes })
-      .andWhere('(prefer.mentionedUserOneGender IS NULL OR prefer.mentionedUserOneGender IN (:...allowedMentionedGenders))', { allowedMentionedGenders })
-      .andWhere('(prefer.mentionedUserTwoGender IS NULL OR prefer.mentionedUserTwoGender IN (:...allowedMentionedGenders))', { allowedMentionedGenders })
+      .andWhere('(prefer.mentionedUserGender IS NULL OR prefer.mentionedUserGender IN (:...allowedMentionedGenders))', { allowedMentionedGenders })
       .orderBy('RANDOM()')
       .limit(100)
       .getMany();
@@ -213,8 +206,7 @@ export class PreferService {
       question,
       questionType: 'prefer' as const,
       userTarget: null,
-      userMentionedOne: pickUser(question.mentionedUserOneGender),
-      userMentionedTwo: pickUser(question.mentionedUserTwoGender),
+      userMentioned: pickUser(question.mentionedUserGender),
     }));
   }
 }

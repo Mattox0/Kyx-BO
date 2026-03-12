@@ -17,11 +17,7 @@ export class ImportPreferItemDto {
 
   @IsEnum(Gender)
   @IsOptional()
-  mentionedUserOneGender?: Gender;
-
-  @IsEnum(Gender)
-  @IsOptional()
-  mentionedUserTwoGender?: Gender;
+  mentionedUserGender?: Gender;
 }
 
 export class ImportPreferDto {

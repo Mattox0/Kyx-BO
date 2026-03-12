@@ -30,15 +30,7 @@ export class Prefer extends BaseEntity {
     nullable: true,
     default: null,
   })
-  mentionedUserOneGender: Gender | null;
-
-  @Column({
-    type: 'enum',
-    enum: Gender,
-    nullable: true,
-    default: null,
-  })
-  mentionedUserTwoGender: Gender | null;
+  mentionedUserGender: Gender | null;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdDate: Date;
